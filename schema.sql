@@ -1,17 +1,20 @@
-
--- Събития
-CREATE TABLE events (
-  id SERIAL PRIMARY KEY,
-  title TEXT NOT NULL,
-  date DATE NOT NULL,
-  location TEXT,
-  description TEXT
-);
+-- ===========================
+--  SQLite schema for LeaderTV
+-- ===========================
 
 -- Новини
-CREATE TABLE news (
-  id SERIAL PRIMARY KEY,
-  title TEXT NOT NULL,
-  content TEXT,
-  date DATE DEFAULT CURRENT_DATE
+CREATE TABLE IF NOT EXISTS news (
+  id       INTEGER PRIMARY KEY AUTOINCREMENT,
+  title    TEXT    NOT NULL,
+  date     TEXT    NOT NULL,   -- ISO формат: YYYY-MM-DD
+  summary  TEXT,
+  link     TEXT
+);
+
+-- Събития
+CREATE TABLE IF NOT EXISTS events (
+  id       INTEGER PRIMARY KEY AUTOINCREMENT,
+  title    TEXT    NOT NULL,
+  start    TEXT    NOT NULL,   -- ISO формат: YYYY-MM-DDTHH:mm
+  location TEXT
 );
