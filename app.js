@@ -5,7 +5,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// demo endpoints (чете от статични JSON-и)
+// demo данни от JSON (read-only)
 import news from './data/news.json' assert { type: 'json' };
 import events from './data/events.json' assert { type: 'json' };
 
