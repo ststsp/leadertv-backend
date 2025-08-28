@@ -1,34 +1,33 @@
-import express from 'express';
-import cors from 'cors';
-import dotenv from 'dotenv';
-
-dotenv.config();
+// server.js
+import express from "express";
+import cors from "cors";
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-// примерни ендпойнти – замени с твоите:
-app.get('/api/health', (req, res) => {
-  res.json({ ok: true, env: process.env.NODE_ENV || 'local' });
+// ---- примерни API маршрути ----
+app.get("/api/health", (req, res) => {
+  res.json({ ok: true, env: "vercel-or-local" });
 });
 
-// TODO: тук добави твоите реални маршрути, например:
-// app.get('/api/news', ...);
-// app.post('/api/news', ...);
-// и т.н.
+// TODO: замени със своите реални маршрути
+app.get("/api/news", (req, res) => {
+  res.json([{ id: 1, title: "Demo news" }]);
+});
 
-const PORT = process.env.PORT || 3001;
+app.get("/api/events", (req, res) => {
+  res.json([{ id: 1, title: "Demo event" }]);
+});
 
-// Vercel: експортираме app (без да слушаме порт)
-// Локално: слушаме порт
-const isVercel = !!process.env.VERCEL;
+// ---- Vercel handler ----
+// На Vercel НЯМА да слушаме порт. Просто export-ваме handler-а:
+export default (req, res) => app(req, res);
 
-if (!isVercel) {
+// ---- Локално стартиране ----
+if (!process.env.VERCEL) {
+  const PORT = process.env.PORT || 3001;
   app.listen(PORT, () => {
     console.log(`API listening on http://localhost:${PORT}`);
   });
 }
-
-// Експорт за Vercel (@vercel/node ще използва това)
-export default app;
