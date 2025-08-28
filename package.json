@@ -1,5 +1,16 @@
 {
   "name": "leadertv-backend",
+  "version": "1.0.0",
   "private": true,
-  "type": "module"
+  "type": "module",
+  "scripts": {
+    "dev": "vercel dev",
+    "start": "vercel dev"
+  },
+  "dependencies": {
+    "cors": "^2.8.5"
+  },
+  "engines": {
+    "node": ">=18"
+  }
 }
