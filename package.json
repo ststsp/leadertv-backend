@@ -2,11 +2,5 @@
   "name": "leadertv-backend",
   "private": true,
   "type": "module",
-  "scripts": {
-    "dev": "node --watch api/health.js"
-  },
-  "dependencies": {},
-  "engines": {
-    "node": "20.x"
-  }
+  "engines": { "node": ">=20" }
 }
