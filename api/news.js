@@ -1,7 +1,6 @@
 export default function handler(req, res) {
-  const news = [
-    { id: 1, title: "Старт на LeaderTV", date: "2025-08-14" },
-    { id: 2, title: "Уебинар за добри практики", date: "2025-09-05" },
-  ];
-  res.status(200).json(news);
+  res.status(200).json([
+    { id: 1, title: "Първа новина", content: "Това е тестова новина от LeaderTV." },
+    { id: 2, title: "Втора новина", content: "Backend API работи успешно на Vercel." }
+  ]);
 }
