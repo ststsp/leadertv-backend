@@ -1,7 +1,8 @@
 import { Router } from "express";
 const router = Router();
 
-router.get("/ping", (req, res) => {
+// само този конкретен път (никакви catch-all!)
+router.get("/ping", (_req, res) => {
   res.json({ pong: true });
 });
 
