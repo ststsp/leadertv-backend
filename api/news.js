@@ -1,9 +1,10 @@
+// api/news.js
 import { Router } from "express";
 const router = Router();
 
-let news = []; // временно в памет
+let news = []; 
 
-// GET /api/news  →  []
+// GET /api/news  -> []
 router.get("/news", (req, res) => {
   res.json(news);
 });
