@@ -4,52 +4,42 @@ import health from "./api/health.js";
 import ping from "./api/ping.js";
 
 const app = express();
-
-// ---- middleware ----
 app.use(express.json());
 
-// CORS: localhost, leadertv.org, и всички *.vercel.app (за Preview/Prod)
-const allowedHosts = new Set([
+// Позволени произходи (добави точния ти Vercel домейн ако ползваш такъв)
+const allowed = new Set([
   "http://localhost:5173",
   "https://www.leadertv.org",
   "https://leadertv.org",
 ]);
 
-app.use(
-  cors({
-    origin(origin, cb) {
-      if (!origin) return cb(null, true); // allow curl/Postman
-      if (allowedHosts.has(origin)) return cb(null, true);
-      if (/\.vercel\.app$/.test(new URL(origin).host)) return cb(null, true);
-      return cb(null, false);
-    },
-  })
-);
+app.use(cors({
+  origin(origin, cb) {
+    if (!origin) return cb(null, true);                 // Postman/curl
+    try {
+      if (allowed.has(origin)) return cb(null, true);
+      const host = new URL(origin).host || "";
+      if (/\.vercel\.app$/.test(host)) return cb(null, true);
+    } catch {}
+    return cb(null, false);
+  }
+}));
 
-// диагностика (временно – помага да видим хитовете към API)
-app.use("/api", (req, _res, next) => {
-  console.log(`[API] ${req.method} ${req.url}`);
-  next();
-});
+// Диагностика (можеш да го махнеш когато всичко тръгне)
+app.use("/api", (req, _res, next) => { console.log(`[API] ${req.method} ${req.url}`); next(); });
 
-// ---- IN-MEMORY STORE (временно; после се заменя с база) ----
+// --- Временни in-memory данни ---
 const store = { news: [], events: [] };
 
-// helper: гарантира JSON отговор
-const sendJson = (res, data, code = 200) =>
-  res.status(code).type("application/json").send(JSON.stringify(data));
-
-// ---- HEALTH & PING (чрез мини-рутърите) ----
+// HEALTH & PING (мини рутъри)
 app.use("/api", health);
 app.use("/api", ping);
 
-// ---- NEWS ----
-// GET /api/news  -> []
+// --------- NEWS ----------
 app.get("/api/news", (req, res) => {
-  sendJson(res, store.news);
+  res.status(200).type("application/json").send(JSON.stringify(store.news));
 });
 
-// POST /api/news
 app.post("/api/news", (req, res) => {
   const item = {
     id: Date.now().toString(),
@@ -58,27 +48,12 @@ app.post("/api/news", (req, res) => {
     body: req.body?.body || "",
   };
   store.news.unshift(item);
-  sendJson(res, item, 201);
+  res.status(201).type("application/json").send(JSON.stringify(item));
 });
 
-// PUT /api/news/:id
-app.put("/api/news/:id", (req, res) => {
-  const i = store.news.findIndex((n) => (n.id || n._id) === req.params.id);
-  if (i === -1) return res.sendStatus(404);
-  store.news[i] = { ...store.news[i], ...req.body };
-  sendJson(res, store.news[i]);
-});
-
-// DELETE /api/news/:id
-app.delete("/api/news/:id", (req, res) => {
-  const before = store.news.length;
-  store.news = store.news.filter((n) => (n.id || n._id) !== req.params.id);
-  return res.sendStatus(before === store.news.length ? 404 : 204);
-});
-
-// ---- EVENTS ----
+// --------- EVENTS ----------
 app.get("/api/events", (req, res) => {
-  sendJson(res, store.events);
+  res.status(200).type("application/json").send(JSON.stringify(store.events));
 });
 
 app.post("/api/events", (req, res) => {
@@ -89,34 +64,19 @@ app.post("/api/events", (req, res) => {
     location: req.body?.location || "",
   };
   store.events.unshift(item);
-  sendJson(res, item, 201);
+  res.status(201).type("application/json").send(JSON.stringify(item));
 });
 
-app.put("/api/events/:id", (req, res) => {
-  const i = store.events.findIndex((e) => (e.id || e._id) === req.params.id);
-  if (i === -1) return res.sendStatus(404);
-  store.events[i] = { ...store.events[i], ...req.body };
-  sendJson(res, store.events[i]);
-});
+// 404 под /api (JSON)
+app.use("/api", (req, res) => res.status(404).json({ error: "Not found", path: req.path }));
 
-app.delete("/api/events/:id", (req, res) => {
-  const before = store.events.length;
-  store.events = store.events.filter((e) => (e.id || e._id) !== req.params.id);
-  return res.sendStatus(before === store.events.length ? 404 : 204);
-});
-
-// ---- 404 за /api (JSON) ----
-app.use("/api", (req, res) =>
-  res.status(404).json({ error: "Not found", path: req.path })
-);
-
-// ---- Глобален error handler ----
+// Глобален error handler
 app.use((err, _req, res, _next) => {
   console.error(err);
   res.status(500).json({ error: "Server error" });
 });
 
-// корен
+// Корен
 app.get("/", (_req, res) => res.send("LeaderTV backend OK"));
 
 const port = process.env.PORT || 8080;
