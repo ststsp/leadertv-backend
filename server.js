@@ -60,7 +60,7 @@ app.post("/api/news", requireAdmin, (req, res) => {
     id: Date.now().toString(),
     title: req.body?.title ?? "",
     date: req.body?.date ?? "",
-    body: req.body?.body ?? "",
+    summary: req.body?.summary ?? "",
   };
   store.news.unshift(item);
   res.status(201).json(item);
