@@ -87,7 +87,8 @@ app.post("/api/events", requireAdmin, (req, res) => {
     id: Date.now().toString(),
     title: req.body?.title ?? "",
     date: req.body?.date ?? "",
-    location: req.body?.location ?? "",
+    place: req.body?.place ?? "",
+    summary: req.body?.summary ?? "",
   };
   store.events.unshift(item);
   res.status(201).json(item);
